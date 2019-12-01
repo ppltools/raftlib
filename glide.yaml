@@ -1,0 +1,14 @@
+package: github.com/ppltools/raftlib
+import:
+- package: github.com/coreos/etcd
+  version: ^3.3.18
+  subpackages:
+  - etcdserver/stats
+  - pkg/fileutil
+  - pkg/types
+  - raft
+  - raft/raftpb
+  - rafthttp
+  - snap
+  - wal
+  - wal/walpb

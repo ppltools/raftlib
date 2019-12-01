@@ -1,0 +1,178 @@
+hash: 5277527b80b7f005316d56d2f20a1c937b050b9c39599e041caadd1e1609946c
+updated: 2019-12-01T10:59:13.298479+08:00
+imports:
+- name: github.com/beorn7/perks
+  version: 37c8de3658fcb183f997c4e13e8337516ab753e6
+  subpackages:
+  - quantile
+- name: github.com/BurntSushi/toml
+  version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
+- name: github.com/coreos/etcd
+  version: 3c8740a7932f5838051590315d027fc1306ae8ea
+  subpackages:
+  - etcdserver/stats
+  - pkg/crc
+  - pkg/fileutil
+  - pkg/httputil
+  - pkg/ioutil
+  - pkg/logutil
+  - pkg/pbutil
+  - pkg/systemd
+  - pkg/tlsutil
+  - pkg/transport
+  - pkg/types
+  - raft
+  - raft/raftpb
+  - rafthttp
+  - snap
+  - snap/snappb
+  - version
+  - wal
+  - wal/walpb
+- name: github.com/coreos/go-semver
+  version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
+  subpackages:
+  - semver
+- name: github.com/coreos/go-systemd
+  version: e64a0ec8b42a61e2a9801dc1d0abe539dea79197
+  subpackages:
+  - daemon
+  - journal
+  - util
+- name: github.com/coreos/pkg
+  version: 97fdf19511ea361ae1c100dd393cc47f8dcfa1e1
+  subpackages:
+  - capnslog
+- name: github.com/gogo/protobuf
+  version: ba06b47c162d49f2af050fb4c75bcbc86a159d5c
+  subpackages:
+  - gogoproto
+  - proto
+  - protoc-gen-gogo/descriptor
+- name: github.com/golang/protobuf
+  version: 6c65a5562fc06764971b7c5d05c76c75e84bdbf7
+  subpackages:
+  - jsonpb
+  - proto
+- name: github.com/matttproud/golang_protobuf_extensions
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  subpackages:
+  - pbutil
+- name: github.com/prometheus/client_golang
+  version: 5cec1d0429b02e4323e042eb04dafdb079ddf568
+  subpackages:
+  - prometheus
+  - prometheus/promhttp
+- name: github.com/prometheus/client_model
+  version: 6f3806018612930941127f2a7c6c453ba2c527d2
+  subpackages:
+  - go
+- name: github.com/prometheus/common
+  version: e3fb1a1acd7605367a2b378bc2e2f893c05174b7
+  subpackages:
+  - expfmt
+  - internal/bitbucket.org/ww/goautoneg
+  - model
+- name: github.com/prometheus/procfs
+  version: a6e9df898b1336106c743392c48ee0b71f5c4efa
+  subpackages:
+  - xfs
+- name: github.com/xiang90/probing
+  version: 07dd2e8dfe18522e9c447ba95f2fe95262f63bb2
+- name: go.uber.org/atomic
+  version: 40ae6a40a970ef4cdbffa7b24b280e316db8accc
+- name: go.uber.org/multierr
+  version: 824d08f79702fe5f54aca8400aa0d754318786e7
+- name: go.uber.org/tools
+  version: 2cfd321de3ee5d5f8a5fda2521d1703478334d98
+  subpackages:
+  - update-license
+- name: go.uber.org/zap
+  version: 27376062155ad36be76b0f12cf1572a221d3a48c
+  subpackages:
+  - buffer
+  - internal/bufferpool
+  - internal/color
+  - internal/exit
+  - zapcore
+- name: golang.org/x/lint
+  version: fdd1cda4f05fd1fd86124f0ef9ce31a0b72c8448
+  subpackages:
+  - golint
+- name: golang.org/x/time
+  version: c06e80d9300e4443158a03817b8a8cb37d230320
+  subpackages:
+  - rate
+- name: golang.org/x/tools
+  version: ecd32218bd7f33fd31c1abbfb74283690bedd093
+  subpackages:
+  - go/analysis
+  - go/analysis/passes/inspect
+  - go/ast/astutil
+  - go/ast/inspector
+  - go/buildutil
+  - go/gcexportdata
+  - go/internal/cgo
+  - go/internal/gcimporter
+  - go/internal/packagesdriver
+  - go/loader
+  - go/packages
+  - go/types/objectpath
+  - go/types/typeutil
+  - internal/fastwalk
+  - internal/gopathwalk
+  - internal/semver
+  - internal/span
+- name: google.golang.org/grpc
+  version: 6eaf6f47437a6b4e2153a190160ef39a92c7eceb
+  subpackages:
+  - balancer
+  - codes
+  - connectivity
+  - credentials
+  - grpclog
+  - health
+  - health/grpc_health_v1
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
+  - status
+  - transport
+- name: honnef.co/go/tools
+  version: dfe37feaecf7b73ce53f4fb8fa347265a77c6c4b
+  subpackages:
+  - arg
+  - cmd/staticcheck
+  - code
+  - config
+  - deprecated
+  - edit
+  - facts
+  - functions
+  - go/types/typeutil
+  - internal/cache
+  - internal/passes/buildir
+  - internal/renameio
+  - internal/robustio
+  - internal/sharedcheck
+  - ir
+  - ir/irutil
+  - lint
+  - lint/lintdsl
+  - lint/lintutil
+  - lint/lintutil/format
+  - loader
+  - pattern
+  - printf
+  - report
+  - simple
+  - staticcheck
+  - stylecheck
+  - unused
+  - version
+testImports: []

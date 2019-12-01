@@ -18,9 +18,8 @@ import (
 	"flag"
 	"strings"
 
+	"github.com/coreos/etcd/raft/raftpb"
 	"github.com/ppltools/raftlib"
-
-	"go.etcd.io/etcd/raft/raftpb"
 )
 
 func main() {
