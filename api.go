@@ -3,18 +3,23 @@ package raftlib
 import (
 	"strings"
 
+	"github.com/coreos/etcd/raft"
 	"github.com/coreos/etcd/raft/raftpb"
 )
 
 type Config struct {
-	Id         int
-	Cluster    string
-	Join       bool
-	ServerPort int
+	Id          int
+	Cluster     string
+	Join        bool
+	ServerPort  int
+	PersistRoot string
 }
 
 type raftIns struct {
+	id          uint64
 	kv          *Kvstore
+	leader      uint64
+	state       raft.StateType
 	confChangeC chan raftpb.ConfChange
 	errorC      <-chan error
 	closed      bool
@@ -58,7 +63,15 @@ func (r *raftIns) RemoveNode(nodeId uint64) {
 }
 
 func (r *raftIns) IsLeader() bool {
-	return false
+	return r.state == raft.StateLeader && r.id == r.leader
+}
+
+func (r *raftIns) HasLeader() bool {
+	return r.id != 0
+}
+
+func (r *raftIns) Leader() uint64 {
+	return r.leader
 }
 
 func (r *raftIns) Closed() bool {
@@ -66,17 +79,36 @@ func (r *raftIns) Closed() bool {
 		return true
 	}
 	select {
-	case <-r.errorC:
-		r.closed = true
-		return true
+	case _, ok := <-r.errorC:
+		if !ok {
+			r.closed = true
+			return true
+		}
 	default:
-		return false
 	}
+	return false
 }
 
 func (r *raftIns) Close() {
 	close(r.confChangeC)
 	close(r.kv.proposeC)
+}
+
+func (r *raftIns) updateState(c <-chan *raft.SoftState) {
+	stop := false
+	for !stop {
+		select {
+		case state := <-c:
+			if state != nil {
+				r.leader = state.Lead
+				r.state = state.RaftState
+			}
+		case _, ok := <-r.errorC:
+			if !ok {
+				stop = true
+			}
+		}
+	}
 }
 
 type RaftApi interface {
@@ -87,6 +119,11 @@ type RaftApi interface {
 	RemoveNode(nodeId uint64)
 
 	IsLeader() bool
+	HasLeader() bool
+	Leader() uint64
+
+	Closed() bool
+	Close()
 }
 
 func NewRaft(c *Config) RaftApi {
@@ -96,7 +133,7 @@ func NewRaft(c *Config) RaftApi {
 	// raftIns provides a commit stream for the proposals from the http api
 	var kvs *Kvstore
 	getSnapshot := func() ([]byte, error) { return kvs.GetSnapshot() }
-	commitC, errorC, snapshotterReady := NewRaftNode(c.Id, strings.Split(c.Cluster, ","), c.Join, getSnapshot, proposeC, confChangeC)
+	commitC, errorC, snapshotterReady, softStateC := NewRaftNode(c.Id, strings.Split(c.Cluster, ","), c.Join, c.PersistRoot, getSnapshot, proposeC, confChangeC)
 
 	kvs = NewKVStore(<-snapshotterReady, proposeC, commitC, errorC)
 
@@ -107,5 +144,8 @@ func NewRaft(c *Config) RaftApi {
 		}()
 	}
 
-	return &raftIns{kv: kvs, confChangeC: confChangeC, errorC: errorC}
+	ins := &raftIns{id: uint64(c.Id), kv: kvs, confChangeC: confChangeC, errorC: errorC}
+	go ins.updateState(softStateC)
+
+	return ins
 }

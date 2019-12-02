@@ -53,6 +53,7 @@ type raftNode struct {
 	confState     raftpb.ConfState
 	snapshotIndex uint64
 	appliedIndex  uint64
+	softStateC    chan *raft.SoftState
 
 	// raft backing for the commit/error channel
 	node        raft.Node
@@ -76,8 +77,8 @@ var defaultSnapCount uint64 = 10000
 // provided the proposal channel. All log entries are replayed over the
 // commit channel, followed by a nil message (to indicate the channel is
 // current), then new log entries. To shutdown, close proposeC and read errorC.
-func NewRaftNode(id int, peers []string, join bool, getSnapshot func() ([]byte, error), proposeC <-chan string,
-	confChangeC <-chan raftpb.ConfChange) (<-chan *string, <-chan error, <-chan *snap.Snapshotter) {
+func NewRaftNode(id int, peers []string, join bool, persistRoot string, getSnapshot func() ([]byte, error), proposeC <-chan string,
+	confChangeC <-chan raftpb.ConfChange) (<-chan *string, <-chan error, <-chan *snap.Snapshotter, <-chan *raft.SoftState) {
 
 	commitC := make(chan *string)
 	errorC := make(chan error)
@@ -90,10 +91,11 @@ func NewRaftNode(id int, peers []string, join bool, getSnapshot func() ([]byte, 
 		id:          id,
 		peers:       peers,
 		join:        join,
-		waldir:      fmt.Sprintf("data/member/wal"),
-		snapdir:     fmt.Sprintf("data/member/snap"),
+		waldir:      fmt.Sprintf("%swal", persistRoot),
+		snapdir:     fmt.Sprintf("%ssnap", persistRoot),
 		getSnapshot: getSnapshot,
 		snapCount:   defaultSnapCount,
+		softStateC:  make(chan *raft.SoftState, 1),
 		stopc:       make(chan struct{}),
 		httpstopc:   make(chan struct{}),
 		httpdonec:   make(chan struct{}),
@@ -102,7 +104,7 @@ func NewRaftNode(id int, peers []string, join bool, getSnapshot func() ([]byte, 
 		// rest of structure populated after WAL replay
 	}
 	go rc.startRaft()
-	return commitC, errorC, rc.snapshotterReady
+	return commitC, errorC, rc.snapshotterReady, rc.softStateC
 }
 
 func (rc *raftNode) saveSnap(snap raftpb.Snapshot) error {
@@ -252,6 +254,7 @@ func (rc *raftNode) writeError(err error) {
 	close(rc.commitC)
 	rc.errorC <- err
 	close(rc.errorC)
+	close(rc.softStateC)
 	rc.node.Stop()
 }
 
@@ -315,6 +318,7 @@ func (rc *raftNode) stop() {
 	rc.stopHTTP()
 	close(rc.commitC)
 	close(rc.errorC)
+	close(rc.softStateC)
 	rc.node.Stop()
 }
 
@@ -424,6 +428,12 @@ func (rc *raftNode) serveChannels() {
 
 		// store raft entries to wal, then publish over commit channel
 		case rd := <-rc.node.Ready():
+			if rd.SoftState != nil {
+				select {
+				case rc.softStateC <- rd.SoftState:
+				default:
+				}
+			}
 			rc.wal.Save(rd.HardState, rd.Entries)
 			if !raft.IsEmptySnap(rd.Snapshot) {
 				rc.saveSnap(rd.Snapshot)

@@ -1,5 +1,5 @@
-hash: 5277527b80b7f005316d56d2f20a1c937b050b9c39599e041caadd1e1609946c
-updated: 2019-12-01T10:59:13.298479+08:00
+hash: 9c0a16eee5e32222d3345d1d36d3e773c724b5dce3df686c050a2bbf6196b22d
+updated: 2019-12-02T14:05:46.756091+08:00
 imports:
 - name: github.com/beorn7/perks
   version: 37c8de3658fcb183f997c4e13e8337516ab753e6
@@ -104,7 +104,7 @@ imports:
   subpackages:
   - rate
 - name: golang.org/x/tools
-  version: ecd32218bd7f33fd31c1abbfb74283690bedd093
+  version: 6e064ea0cf2dcfaca8da2da9f42da458bab38756
   subpackages:
   - go/analysis
   - go/analysis/passes/inspect
@@ -144,7 +144,7 @@ imports:
   - status
   - transport
 - name: honnef.co/go/tools
-  version: dfe37feaecf7b73ce53f4fb8fa347265a77c6c4b
+  version: 32de78dc1c6c931f2bf017870750b0ca80006601
   subpackages:
   - arg
   - cmd/staticcheck

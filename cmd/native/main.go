@@ -38,7 +38,7 @@ func main() {
 	// raft provides a commit stream for the proposals from the http api
 	var kvs *raftlib.Kvstore
 	getSnapshot := func() ([]byte, error) { return kvs.GetSnapshot() }
-	commitC, errorC, snapshotterReady := raftlib.NewRaftNode(*id, strings.Split(*cluster, ","), *join, getSnapshot, proposeC, confChangeC)
+	commitC, errorC, snapshotterReady, _ := raftlib.NewRaftNode(*id, strings.Split(*cluster, ","), *join, getSnapshot, proposeC, confChangeC)
 
 	kvs = raftlib.NewKVStore(<-snapshotterReady, proposeC, commitC, errorC)
 
