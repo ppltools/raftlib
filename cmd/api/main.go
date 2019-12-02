@@ -2,18 +2,22 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/ppltools/raftlib"
 )
 
 func main() {
-	r := raftlib.NewRaft(&raftlib.Config{
-		Id:          1,
-		Cluster:     "http://127.0.0.1:2379",
+	r, err := raftlib.NewRaft(&raftlib.Config{
+		Cluster:     "http://172.24.25.75:2379",
 		PersistRoot: "data/member1/",
 		ServerPort:  8080,
 	})
+	if err != nil {
+		fmt.Printf("new raft instance failed: %s\n", err)
+		os.Exit(-1)
+	}
 	r.Propose("stupig", "hello, world")
 	// wait for log to be committed and applied
 	time.Sleep(time.Second)

@@ -1,6 +1,7 @@
 package raftlib
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/coreos/etcd/raft"
@@ -8,11 +9,11 @@ import (
 )
 
 type Config struct {
-	Id          int
-	Cluster     string
-	Join        bool
-	ServerPort  int
-	PersistRoot string
+	Id          int    // node id，如果用户未指定，根据本机IP扫描cluster
+	Cluster     string // 集群地址
+	Join        bool   // 是否加入新集群
+	ServerPort  int    // 用户端口，类似于etcd 2379
+	PersistRoot string // 持久化根路径：wal和snap
 }
 
 type raftIns struct {
@@ -126,9 +127,22 @@ type RaftApi interface {
 	Close()
 }
 
-func NewRaft(c *Config) RaftApi {
+func NewRaft(c *Config) (RaftApi, error) {
 	proposeC := make(chan string)
 	confChangeC := make(chan raftpb.ConfChange)
+
+	peers := strings.Split(c.Cluster, ",")
+	if c.Id == 0 || c.Id >= len(peers) {
+		localIP := getLocalIP()
+		for i := 0; i < len(peers); i++ {
+			if pip, err := getIP(peers[i]); err == nil && pip == localIP {
+				c.Id = i + 1
+			}
+		}
+		if c.Id == 0 {
+			return nil, errors.New("unknown raft node")
+		}
+	}
 
 	// raftIns provides a commit stream for the proposals from the http api
 	var kvs *Kvstore
@@ -147,5 +161,5 @@ func NewRaft(c *Config) RaftApi {
 	ins := &raftIns{id: uint64(c.Id), kv: kvs, confChangeC: confChangeC, errorC: errorC}
 	go ins.updateState(softStateC)
 
-	return ins
+	return ins, nil
 }
